@@ -1,0 +1,12 @@
+<h1><%= @user.name %></h1>
+
+<h2><%= @user.email %></h2>
+
+<% if @user.questions.any? %>
+<h1>Questions</h1>
+	<%= @user.questions.count %>
+	<%= render @user.questions %>
+	
+<% end %> <br><br>
+
+<%= link_to 'Ask Question', new_user_question_path(@user) %>

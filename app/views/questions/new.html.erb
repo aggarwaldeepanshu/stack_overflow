@@ -1,0 +1,17 @@
+<% provide(:title, "Ask Question") %>
+
+<h1>Ask your Question</h1>
+
+<%= form_with(model: [ @user, @user.questions.build ], local: true) do |form| %>
+  <p>
+    <%= form.label :title %><br>
+    <%= form.text_field :title %>
+  </p>
+  <p>
+    <%= form.label :body %><br>
+    <%= form.text_area :body %>
+  </p>
+  <p>
+    <%= form.submit %>
+  </p>
+<% end %>
