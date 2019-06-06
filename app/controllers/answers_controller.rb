@@ -7,21 +7,28 @@ class AnswersController < ApplicationController
 
   def create
   	#debugger
-  	@question.answers.create!(create_params)
+  	@answer = answers.create!(create_params)
+    @answer.create_answer_vote(create_vote)
   	redirect_to question_path(@question)
   end
 
   def edit
-  	@answer = @question.answers.find(params[:id])
+  	@answer = answers.find(params[:id])
   end
 
   def update
-  	@answer = @question.answers.find(params[:id])
+  	@answer = answers.find(params[:id])
   	if @answer.update(create_params)
   		redirect_to question_path(@question)
   	else
   		render 'edit'
   	end
+  end
+
+  def destroy
+    @answer = answers.find(params[:id])
+    @answer.destroy
+    redirect_to question_path(@question)
   end
 
   private
@@ -30,7 +37,16 @@ class AnswersController < ApplicationController
   	@question = Question.find(params[:question_id])
   end
 
+  def answers
+  	@question.answers
+  end
+
   def create_params
   	params.require(:answer).permit("body")
+  end
+
+  def create_vote
+    my_params = ActionController::Parameters.new(answer_id: @answer, count: 0)
+    my_params.permit(:answer_id, :count)
   end
 end

@@ -12,7 +12,7 @@
 		<strong>Body</strong>
 		<%= question.body %><br>
 	</p>
-	<%= link_to 'Edit Question', edit_user_question_path(question.user_id,question) %>
+	<!--<%= link_to 'Edit Question', edit_user_question_path(question.user_id,question) %> -->
 	<%= link_to 'Add Answer', new_question_answer_path(question) %>
 	<%= link_to 'View Answers', question_path(question) %>
 <% end %>

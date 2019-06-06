@@ -6,14 +6,29 @@
 <%= @question.title %>
 
 <h2>Body</h2>
-<%= @question.body %>
+<%= @question.body %><br>
+
+	<%= link_to 'Upvote', upvote_path(@question, @vote) %>
+
+<p>
+	<%= @vote.count %>
+</p>
+<%= link_to 'Downvote', downvote_path(@question, @vote) %>
 
 <h1>Answers</h1>
 
 <% if @question.answers.any? %>
 	<% @question.answers.each do |answer| %>
 		<p>
-			<%= answer.body %> <%= link_to 'Edit Answer', edit_question_answer_path(@question, answer) %>
+			<%= link_to 'Upvote', '#' %>
+			<%= answer.answer_vote.count %>
+			<%= link_to 'Downvote', '#' %>
+
+			<%= answer.body %> 
+			<%= link_to 'Edit Answer', edit_question_answer_path(@question, answer) %>
+			<%= link_to 'Delete', [answer.question,answer], 
+						   		   method: :delete, 
+						   		   data: {confirm: "Are You Sure?"} %>
 		</p>
 		
 	<% end %>

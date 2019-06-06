@@ -3,6 +3,7 @@ class QuestionsController < ApplicationController
   
 
   before_action :set_user, except: [:index, :show]
+  #after_create :create_vote
 
   def index
     #@questions = questions.limit(10)
@@ -11,13 +12,17 @@ class QuestionsController < ApplicationController
 
   def show
     @question = Question.find(params[:id])
+    #@vote = @question.question_vote.where(question_id: params[:id])
+    @vote = @question.question_vote
   end
 
   def new
   end
 
   def create
-  	questions.create!(create_params)
+    #debugger
+  	@question = questions.create!(create_params)
+    @question.create_question_vote(create_vote)
   	redirect_to user_path(@user)
   end
 
@@ -36,6 +41,12 @@ class QuestionsController < ApplicationController
     end
   end
 
+  def destroy
+    @question = questions.find(params[:id])
+    @question.destroy
+    redirect_to user_path(@user)
+  end
+
   private
 
   def set_user
@@ -48,5 +59,10 @@ class QuestionsController < ApplicationController
 
   def create_params
     params.require(:question).permit(:title, :body)
+  end
+
+  def create_vote
+    my_params = ActionController::Parameters.new(question_id: @question, count: 0)
+    my_params.permit(:question_id, :count)
   end
 end
