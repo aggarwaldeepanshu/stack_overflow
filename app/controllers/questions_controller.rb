@@ -2,7 +2,7 @@ class QuestionsController < ApplicationController
 
   
 
-  before_action :set_user, except: [:index]
+  before_action :set_user, except: [:index, :show]
 
   def index
     #@questions = questions.limit(10)
@@ -10,6 +10,7 @@ class QuestionsController < ApplicationController
   end
 
   def show
+    @question = Question.find(params[:id])
   end
 
   def new

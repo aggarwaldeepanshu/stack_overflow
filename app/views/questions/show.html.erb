@@ -1,0 +1,22 @@
+<% provide(:title, "Question") %>
+
+<h1>Question</h1>
+
+<h2>Title</h2>
+<%= @question.title %>
+
+<h2>Body</h2>
+<%= @question.body %>
+
+<h1>Answers</h1>
+
+<% if @question.answers.any? %>
+	<% @question.answers.each do |answer| %>
+		<p>
+			<%= answer.body %> <%= link_to 'Edit Answer', edit_question_answer_path(@question, answer) %>
+		</p>
+		
+	<% end %>
+<% end %><br>
+
+<%= link_to 'Back to Questions', questions_path %>

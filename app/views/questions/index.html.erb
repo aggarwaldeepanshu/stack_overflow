@@ -3,12 +3,16 @@
 <% @questions.each do |question| %>
 
 	<h2>Question by user <%= question.user_id %></h2>
+	<p>
+		<strong>Title</strong>
+		<%= question.title %>
+	</p>
 
-	<h3>Title</h3>
-	<%= question.title %>
-
-	<h3>Body</h3>
-	<%= question.body %><br>
-
-	<%= link_to 'Add Answer', '#' %>
+	<p>
+		<strong>Body</strong>
+		<%= question.body %><br>
+	</p>
+	<%= link_to 'Edit Question', edit_user_question_path(question.user_id,question) %>
+	<%= link_to 'Add Answer', new_question_answer_path(question) %>
+	<%= link_to 'View Answers', question_path(question) %>
 <% end %>
