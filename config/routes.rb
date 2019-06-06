@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  #get 'answers/new'
   #get 'questions/new'
   #get 'users/new'
 
