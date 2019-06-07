@@ -1,0 +1,7 @@
+
+	<%= link_to 'Upvote', ques_upvote_path(@question, @vote) %>
+
+<p>
+	<%= @vote.count %>
+</p>
+<%= link_to 'Downvote', ques_downvote_path(@question, @vote) %>

@@ -1,5 +1,8 @@
 class Answer < ApplicationRecord
-  belongs_to :question
 
+  validates :body, presence: true,
+				   length: { maximum: 700 }
+
+  belongs_to :question
   has_one :answer_vote, dependent: :destroy
 end

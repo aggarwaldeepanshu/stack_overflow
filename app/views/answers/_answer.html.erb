@@ -1,0 +1,11 @@
+<p>
+	<%= link_to 'Upvote', ans_upvote_path(answer,answer.answer_vote) %>
+	<%= answer.answer_vote.count %>
+	<%= link_to 'Downvote', ans_downvote_path(answer,answer.answer_vote) %>
+
+	<%= answer.body %> 
+	<%= link_to 'Edit Answer', edit_question_answer_path(@question, answer) %>
+	<%= link_to 'Delete', [answer.question,answer], 
+						   method: :delete, 
+						   data: {confirm: "Are You Sure?"} %>
+</p>
