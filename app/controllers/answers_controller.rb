@@ -31,6 +31,16 @@ class AnswersController < ApplicationController
     redirect_to question_path(@question)
   end
 
+
+  def upvote
+
+  end
+
+
+  def downvote
+
+  end
+
   private
 
   def set_question

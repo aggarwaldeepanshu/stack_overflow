@@ -11,7 +11,7 @@ class User < ApplicationRecord
 					  uniqueness: {case_sensitive: false}
 	validates :password, presence: true,
 						 length: { minimum: 5 }
-	validtes :password_confirmation, presence: true
+	validates :password_confirmation, presence: true
 
 	has_many :questions, dependent: :destroy
 end

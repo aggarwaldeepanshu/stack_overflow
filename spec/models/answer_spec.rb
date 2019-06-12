@@ -1,5 +1,29 @@
-require 'rails_helper'
-
 RSpec.describe Answer, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+	let(:user) do
+		User.new
+	end
+
+	let(:ques) do
+		user.questions.new
+	end
+
+	subject do
+		ques.answers.build( { body: 'my answer' } )
+	end
+
+	describe 'Validations' do
+		#Basic Validations
+		it { expect(subject).to validate_presence_of(:body) }
+
+		#Inclusion/acceptance of values
+		it { expect(subject).to validate_length_of(:body).is_at_most(700)}
+	end
+
+	describe 'Associations' do
+		# answer belongs to a question
+    it { should belong_to(:question) }
+
+    #answer has_one answer_vote
+    it { should have_one(:answer_vote).dependent(:destroy) }
+	end
 end

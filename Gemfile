@@ -51,6 +51,8 @@ group :development, :test do
 
   gem 'rspec-rails', '~> 3.7' # BDD for Ruby
   gem 'factory_bot_rails'
+  gem 'database_cleaner' # Strategies for cleaning databases. Can be used to ensure a clean state for testing.
+  gem 'shoulda-matchers'
 end
 
 group :development do
