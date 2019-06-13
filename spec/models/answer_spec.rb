@@ -21,9 +21,9 @@ RSpec.describe Answer, type: :model do
 
 	describe 'Associations' do
 		# answer belongs to a question
-    it { should belong_to(:question) }
+    it { expect(subject).to belong_to(:question) }
 
     #answer has_one answer_vote
-    it { should have_one(:answer_vote).dependent(:destroy) }
+    it { expect(subject).to have_one(:answer_vote).dependent(:destroy) }
 	end
 end

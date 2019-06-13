@@ -4,5 +4,6 @@ class Answer < ApplicationRecord
 				   length: { maximum: 700 }
 
   belongs_to :question
+  belongs_to :user
   has_one :answer_vote, dependent: :destroy
 end

@@ -13,6 +13,7 @@ class AnswersController < ApplicationController
   end
 
   def edit
+    debugger
   	@answer = answers.find(params[:id])
   end
 

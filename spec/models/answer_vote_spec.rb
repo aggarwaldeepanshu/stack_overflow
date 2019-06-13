@@ -16,7 +16,7 @@ RSpec.describe AnswerVote, type: :model do
 	end
 
 	describe 'Associations' do
-		# question_vote belongs to a question
-    it { should belong_to(:answer) }
+		# answer_vote belongs to an answer
+    it { expect(subject).to belong_to(:answer) }
 	end
 end

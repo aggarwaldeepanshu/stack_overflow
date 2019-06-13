@@ -21,13 +21,21 @@ class QuestionsController < ApplicationController
 
   def create
     #debugger
-  	@question = questions.create!(create_params)
-    @question.create_question_vote(create_vote)
-  	redirect_to user_path(@user)
+  	# @question = questions.create!(create_params)
+   #  @question.create_question_vote(create_vote)
+  	# redirect_to user_path(@user)
+
+    if questions.create(create_params).valid?
+      @question = Question.last
+      @question.create_question_vote(create_vote)
+      redirect_to user_path(@user)
+    else
+      render 'new'
+    end
+
   end
 
   def edit
-    #debugger
     @question = questions.find(params[:id])
   end
 
