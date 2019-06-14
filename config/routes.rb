@@ -1,15 +1,22 @@
 Rails.application.routes.draw do
+  devise_for :users
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
    root 'static_pages#home'
 
-  resources :users do
-  	#resources :questions, shallow: true
-  	resources :questions, except: [:index] 
-  end
+  # resources :users do
+  # 	resources :questions, shallow: true, except: [:index]
+  # 	#resources :questions, except: [:index] 
+  # end
 
-  resources :questions do
-  	resources :answers
+  # resources :questions do
+  # 	resources :answers
+  # end
+
+  resources :users do
+    resources :questions, shallow: true, except: [:index] do
+      resources :answers
+    end
   end
 
   get 'help', to: 'static_pages#help'

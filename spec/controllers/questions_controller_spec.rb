@@ -11,131 +11,223 @@ RSpec.describe QuestionsController, type: :controller do
     'b'*501
   end
 
+  let(:invalid_title) do
+    { title: get_invalid_title, body: 'new body' }
+  end
+
+  let(:invalid_content) do
+    { title: 'title', body: get_invalid_content }
+  end
+
+  let(:empty) do
+    { title: '', body: '' }
+  end
+
+  let(:empty_title) do
+    { title: '', body: 'content' }
+  end
+
+  let(:empty_content) do
+    { title: 'title', body: '' }
+  end
+
+  let(:ques) do
+    { title: 'new title', body: 'new body' }
+  end
+
+  let(:empty_content) do
+    { title: 'title', body: '' }
+  end
+
+  let(:empty_title) do
+    { title: '', body: 'content' }
+  end
+
+  let(:login) do
+    sign_in user
+  end
+
   subject do
-    user.questions.create({ title: 'question title', body: 'question body' })
-    #create(:question, { title: 'question title', body: 'question body' })
+    #user.questions.create({ title: 'question title', body: 'question body' })
+    create(:question, user: user, title: 'question title', body: 'question body')
   end
 
   describe '#Index' do
     before(:each) { get :index }
-
-    context 'Positive cases' do
-      it 'successfully redirects to index page' do
-        expect(response).to have_http_status(:success)
-      end
+    it 'successfully redirects to index page' do
+      expect(response).to have_http_status(:success)
     end
   end
 
   describe '#Show' do
-    before(:each) { get :show, params: { id: subject } }
+    it 'successfully redirects to question\'s show page' do
+      login
+      get :show, params: { id: subject }
+      expect(response).to have_http_status(:success)
+    end
 
-    context 'Positive cases' do
-      it 'successfully redirects to question\'s show page' do
-        expect(response).to have_http_status(:success)
+    context 'Do not show the page if' do
+      it 'user is not logged in' do
+        expect{ get :show, params: { id: subject } }.to raise_error RuntimeError
       end
     end
   end
 
   describe '#New' do 
-    before(:each) { get :new, params: { user_id: user } }
-    
-    context 'Positive cases' do
-      it 'successfully redirects to new page' do
-        expect(response).to have_http_status(:success)
-      end
+    it 'successfully redirects to new page' do
+      get :new, params: { user_id: user }
+      expect(response).to have_http_status(:success)
     end
   end
 
   describe '#Create' do 
-    let(:invalid_title) do
-      { :title => get_invalid_title, :body => 'new body' }
-    end
-    let(:invalid_content) do
-      { :title => 'title', :body => get_invalid_content }
+    context 'before creating' do
+      before(:each) do
+        login
+      end
+      it 'check if correct number of arguments passed' do
+        expect{ subject }.to_not raise_error ArgumentError
+      end
     end
 
-    context 'Positive cases' do
-      it 'redirects to user page after creating a question' do
+    context 'after successfully creating a question' do
+      before(:each) do
+        login
+      end
+      it 'check if count increments by 1' do
+        expect{ subject }.to change(Question, :count).by(1)
+      end
+
+      it 'it should redirect to user\'s show page' do
         redirect_to user
         expect(response).to have_http_status(:ok)
       end
+    end
 
-      it 'check if correct arguments passed' do
-        expect{ questions('title', 'content') }.to_not raise_error ArgumentError
-      end
-
-      it 'increments number of questions by 1 after successful creation' do
-        expect{ questions('question title', 'question body') }.to change(Question, :count).by(1)
+    context 'raise error if' do
+      it 'user is not logged in' do
+        expect{ post :create, params: { user_id: user, question: subject } }.to raise_error RuntimeError
       end
     end
 
-    context 'Negative cases' do
-      it 'does not increment questions count on passing invalid attributes' do
-        expect{ questions() }.to_not change(Question, :count)
-        expect{ questions('title') }.to_not change(Question, :count)
-        expect{ questions(' ', 'content') }.to_not change(Question, :count)
+    context 'renders \'new\' template for ' do
+      before(:each) do
+        login
       end
-
-      it 'renders new template for invalid title' do
+      it 'invalid title' do
         post :create, params: { user_id: user, question: invalid_title }
         expect(response).to render_template :new
       end
 
-      it 'renders new template for invalid content' do
+      it 'invalid content' do
         post :create, params: { user_id: user, question: invalid_content }
         expect(response).to render_template :new
+      end
+    end
+
+    context 'does not increment questions count on passing' do
+      before(:each) do
+        login
+      end
+      it 'no arguments' do
+        expect{ empty }.to_not change(Question, :count)
+      end
+
+      it 'empty content' do
+        expect{ empty_content }.to_not change(Question, :count)
+      end
+
+      it 'empty title' do
+        expect{ empty_title }.to_not change(Question, :count)
       end
     end
   end
 
   describe '#Edit' do
-    before(:each) { get :edit, params: {user_id: user, id: subject } }
-    
-    context 'Positive cases' do
-      it 'successfully redirects to edit page' do
-        expect(response).to have_http_status(:success)
-      end
+    it 'successfully redirects to edit page' do
+      login
+      get :edit, params: {user_id: user, id: subject }
+      expect(response).to have_http_status(:success)
     end
+
+    context 'Raise error if' do
+      it 'user is not logged in' do
+        expect{ get :edit, params: {user_id: user, id: subject } }.to raise_error RuntimeError
+      end
+    end    
   end
 
   describe '#Update' do
-    let(:ques) do
-      { :title => 'new title', :body => 'new body' }
-    end
-
-    context 'Positive cases' do
+    context 'After update action' do
       before(:each) do
-        put :update, params: { :user_id => user, :id => subject, :question => ques }
+        login
+        put :update, params: { user_id: user, id: subject, question: ques }
         subject.reload
-      end
-
-      it 'successfully redirects to user\'s page' do
-        expect(response).to redirect_to user
       end
 
       it 'check if arguments updated successfully' do
         expect(subject.title).to eql ques[:title]
         expect(subject.body).to eql ques[:body]
       end
+
+      it 'successfully redirects to user\'s page' do
+        expect(response).to redirect_to user
+      end
+    end
+
+    context 'raise error if' do
+      it 'user is not logged in' do
+        expect{ put :update, params: { user_id: user, id: subject, question: ques } }.to raise_error RuntimeError
+      end
+
+      context 'Title' do
+        before(:each) do
+          login
+        end
+        it 'is empty' do
+          expect{ put :update, params: { user_id: user, id: subject, question: empty_title } }.to raise_error RuntimeError
+        end
+
+        it 'has more than 100 characters' do
+          expect{ put :update, params: { user_id: user, id: subject, question: invalid_title } }.to raise_error RuntimeError
+        end
+      end
+
+      context 'Content' do
+        before(:each) do
+          login
+        end
+        it 'is empty' do
+          expect{ put :update, params: { user_id: user, id: subject, question: empty_content } }.to raise_error RuntimeError
+        end
+
+        it 'has more than 500 characters' do
+          expect{ put :update, params: { user_id: user, id: subject, question: invalid_content } }.to raise_error RuntimeError
+        end
+      end
     end
   end
 
   describe '#Destroy' do
-    it 'count decreases by 1 after deleting' do
-      temp = questions('test title', 'test body')
-      expect{ delete :destroy, params: { :user_id => user, :id => temp} }.to change(Question, :count).by(-1)
+    context 'after deleting an answer' do
+      it 'check if count decreases by 1' do
+        temp = subject
+        new_user = user
+        login
+        expect{ delete :destroy, params: { :user_id => new_user, 
+                                         :id => temp} }.to change(Question, :count).by(-1)
+      end
+
+      it 'it should redirect to user\'s show page' do
+        redirect_to user
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it 'redirects to user page after deleting' do
-      redirect_to user
-      expect(response).to have_http_status(:ok)
+    context 'do not delete' do
+      it 'when user is not logged in' do
+        expect{ delete :destroy, params: { :user_id => user, :id => subject} }.to raise_error RuntimeError
+      end
     end
   end
-end
-
-private
-
-def questions(title = ' ', content = ' ')
-  user.questions.create({ 'title' => title, 
-                            'body' => content })
 end
