@@ -168,7 +168,7 @@ RSpec.describe QuestionsController, type: :controller do
           # empty_title = content
           # empty_title[:title] = ' '
           content[:title] = ''
-          expect{ put :update, params: { user_id: user, id: subject, question: empty_title } }.to raise_error ActiveRecord::RecordInvalid
+          expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
         end
 
         it 'has more than 100 characters' do
@@ -181,9 +181,10 @@ RSpec.describe QuestionsController, type: :controller do
           login
         end
         it 'is empty' do
-          empty_body = content
-          empty_body[:body] = ' '
-          expect{ put :update, params: { user_id: user, id: subject, question: empty_body } }.to raise_error ActiveRecord::RecordInvalid
+          # empty_body = content
+          # empty_body[:body] = ' '
+          content[:body] = ''
+          expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
         end
 
         it 'has more than 500 characters' do
