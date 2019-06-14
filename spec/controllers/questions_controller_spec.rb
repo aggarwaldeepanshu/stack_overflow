@@ -19,28 +19,8 @@ RSpec.describe QuestionsController, type: :controller do
     { title: 'title', body: get_invalid_content }
   end
 
-  let(:empty) do
-    { title: '', body: '' }
-  end
-
-  let(:empty_title) do
-    { title: '', body: 'content' }
-  end
-
-  let(:empty_content) do
-    { title: 'title', body: '' }
-  end
-
-  let(:ques) do
+  let(:content) do
     { title: 'new title', body: 'new body' }
-  end
-
-  let(:empty_content) do
-    { title: 'title', body: '' }
-  end
-
-  let(:empty_title) do
-    { title: '', body: 'content' }
   end
 
   let(:login) do
@@ -48,8 +28,8 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   subject do
-    #user.questions.create({ title: 'question title', body: 'question body' })
-    create(:question, user: user, title: 'question title', body: 'question body')
+    #create(:question, user: user, title: 'question title', body: 'question body')
+    create(:question, user: user, title: content[:title], body: content[:body])
   end
 
   describe '#Index' do
@@ -130,15 +110,15 @@ RSpec.describe QuestionsController, type: :controller do
         login
       end
       it 'no arguments' do
-        expect{ empty }.to_not change(Question, :count)
+        expect{ content.except(:title, :body) }.to_not change(Question, :count)
       end
 
       it 'empty content' do
-        expect{ empty_content }.to_not change(Question, :count)
+        expect{ content.except(:body) }.to_not change(Question, :count)
       end
 
       it 'empty title' do
-        expect{ empty_title }.to_not change(Question, :count)
+        expect{ content.except(:title) }.to_not change(Question, :count)
       end
     end
   end
@@ -161,13 +141,13 @@ RSpec.describe QuestionsController, type: :controller do
     context 'After update action' do
       before(:each) do
         login
-        put :update, params: { user_id: user, id: subject, question: ques }
+        put :update, params: { user_id: user, id: subject, question: content }
         subject.reload
       end
 
       it 'check if arguments updated successfully' do
-        expect(subject.title).to eql ques[:title]
-        expect(subject.body).to eql ques[:body]
+        expect(subject.title).to eql content[:title]
+        expect(subject.body).to eql content[:body]
       end
 
       it 'successfully redirects to user\'s page' do
@@ -177,7 +157,7 @@ RSpec.describe QuestionsController, type: :controller do
 
     context 'raise error if' do
       it 'user is not logged in' do
-        expect{ put :update, params: { user_id: user, id: subject, question: ques } }.to raise_error RuntimeError
+        expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error RuntimeError
       end
 
       context 'Title' do
@@ -185,7 +165,10 @@ RSpec.describe QuestionsController, type: :controller do
           login
         end
         it 'is empty' do
-          expect{ put :update, params: { user_id: user, id: subject, question: empty_title } }.to raise_error RuntimeError
+          # empty_title = content
+          # empty_title[:title] = ' '
+          content[:title] = ''
+          expect{ put :update, params: { user_id: user, id: subject, question: empty_title } }.to raise_error ActiveRecord::RecordInvalid
         end
 
         it 'has more than 100 characters' do
@@ -198,7 +181,9 @@ RSpec.describe QuestionsController, type: :controller do
           login
         end
         it 'is empty' do
-          expect{ put :update, params: { user_id: user, id: subject, question: empty_content } }.to raise_error RuntimeError
+          empty_body = content
+          empty_body[:body] = ' '
+          expect{ put :update, params: { user_id: user, id: subject, question: empty_body } }.to raise_error ActiveRecord::RecordInvalid
         end
 
         it 'has more than 500 characters' do

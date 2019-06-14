@@ -15,13 +15,26 @@ RSpec.describe QuestionVotesController, type: :controller do
 		expect(response).to redirect_to ques
 	end
 
+	subject(:ans_path) do
+		
+	end
+
 	describe 'upvote' do
-		before(:each) { get :ques_upvote, params: {question_id: ques, id: vote } }
-		it { ques_path }
+		before(:each) do
+			get :ques_upvote, params: {question_id: ques, id: vote }
+		end
+		it 'should redirect to question\'s show page' do
+			ques_path
+		end
 	end
 
 	describe 'downvote' do
-		before(:each) { get :ques_downvote, params: {question_id: ques, id: vote } }
-		it { ques_path }
+		before(:each) do
+			get :ques_downvote, params: {question_id: ques, id: vote }
+		end
+
+		it 'should redirect to question\'s show page' do
+			ques_path
+		end
 	end
 end
