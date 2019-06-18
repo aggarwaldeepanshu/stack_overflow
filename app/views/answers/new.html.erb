@@ -2,14 +2,23 @@
 
 <h1>Add your Answer</h1>
 
-<%= form_with(model: [ @question, @question.answers.build ], local: true) do |form| %>
+<%= form_with(model: [ @question, @answer ]) do |form| %>
   <p>
     <%= form.label :body %><br>
     <%= form.text_area :body %>
   </p>
+
+  <%= form.fields_for :answer_vote do |f| %>
+    <p>
+      <%= f.label :count %><br>
+      <%= f.number_field :count, value: 0 %>
+    </p>
+  <% end %>
+
   <p>
-    <%= form.submit %>
+    <%= form.hidden_field :user_id, value: @user.id %>
   </p>
+<%= form.submit %>
 <% end %>
 
 <%= link_to 'Back', questions_path %>

@@ -1,79 +1,67 @@
 class AnswersController < ApplicationController
 
-  before_action :set_question
+  before_action :set_question, except: [:new, :create]
+  before_action :check_access
+  before_action :user, only: [:new, :create]
+  before_action :find_question, only: [:new, :create]
+
+  def new
+    @answer = @question.answers.build
+    @answer.build_answer_vote
+  end
 
   def create
-    if user_signed_in?
-      if answers.create(create_params).valid?
-        @answer = Answer.last
-        @answer.create_answer_vote(create_vote)
-        redirect_to question_path(@question)
-      else
-        raise 'Invalid content'
-      end
-    else
-      raise 'Please login/invalid question'
-    end
+    @answer = @question.answers.new(create_params)
+    @answer.save!
+    redirect_to question_path(@question)
   end
 
   def edit
-    if user_signed_in?
-      @answer = answers.find(params[:id])
-    else
-      raise 'Please login first'
-    end
+    answer
   end
 
   def update
-    if user_signed_in?
-      @answer = answers.find(params[:id])
-      if @answer.update(create_params)
-  		  redirect_to question_path(@question)
-      else
-        raise 'Invalid content'
-  		  render 'edit'
-      end
-    else
-      raise 'Please login first'
-    end
+    answer
+    check_params
+    question.update!(create_params)
+    redirect_to question_path(@question)
   end
 
   def destroy
-    if user_signed_in?
-      @answer = answers.find(params[:id])
-      @answer.destroy
-      redirect_to question_path(@question)
-    else
-      raise 'Please login first'
-    end
-  end
-
-
-  def upvote
-
-  end
-
-
-  def downvote
-
+    question
+    answer.destroy
+    redirect_to question_path(@question)
   end
 
   private
 
-  def set_question
-  	@question = Question.find(params[:question_id])
+  def user
+    @user ||= current_user
+  end
+
+  def find_question
+    @question ||= Question.find(params[:question_id])
+  end
+
+  def answer
+    @answer ||= Answer.find(params[:id])
+  end
+
+  def question
+    @question ||= answer.question_id
   end
 
   def answers
-  	@question.answers
+  	@answer ||= question.answers
   end
 
   def create_params
-  	params.require(:answer).permit('body')
+  	params.require(:answer).permit(:body, :user_id, :answer_vote_attributes)
   end
 
-  def create_vote
-    my_params = ActionController::Parameters.new(answer_id: @answer, count: 0)
-    my_params.permit(:answer_id, :count)
+  def check_params
+    param! params[:answer], Hash do |ques|
+      ques.param! :body, String, required: true, max: 500
+    end
   end
 end

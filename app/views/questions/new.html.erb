@@ -2,7 +2,7 @@
 
 <h1>Ask your Question</h1>
 
-<%= form_with(model: [ @user, @user.questions.build ], local: true) do |form| %>
+<%= form_with(model: [ @user, @question ]) do |form| %>
   <p>
     <%= form.label :title %><br>
     <%= form.text_field :title %>
@@ -11,6 +11,13 @@
     <%= form.label :body %><br>
     <%= form.text_area :body %>
   </p>
+
+  <%= form.fields_for :question_vote do |f| %>
+    <p>
+      <%= f.label :count %><br>
+      <%= f.number_field :count, value: 0 %>
+    </p>
+  <% end %>
   <p>
     <%= form.submit %>
   </p>

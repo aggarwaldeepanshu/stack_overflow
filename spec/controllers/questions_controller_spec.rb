@@ -3,33 +3,12 @@ RSpec.describe QuestionsController, type: :controller do
     create(:user)
   end
 
-  let(:get_invalid_title) do
-    'a'*101
-  end
-
-  let(:get_invalid_content) do
-    'b'*501
-  end
-
-  let(:invalid_title) do
-    { title: get_invalid_title, body: 'new body' }
-  end
-
-  let(:invalid_content) do
-    { title: 'title', body: get_invalid_content }
-  end
-
   let(:content) do
     { title: 'new title', body: 'new body' }
   end
 
   let(:login) do
     sign_in user
-  end
-
-  subject do
-    #create(:question, user: user, title: 'question title', body: 'question body')
-    create(:question, user: user, title: content[:title], body: content[:body])
   end
 
   describe '#Index' do
@@ -40,16 +19,14 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe '#Show' do
+    it 'raise error when user is not logged in' do
+      expect{ get :show, params: { id: subject } }.to raise_error RuntimeError
+    end
+
     it 'successfully redirects to question\'s show page' do
       login
       get :show, params: { id: subject }
       expect(response).to have_http_status(:success)
-    end
-
-    context 'Do not show the page if' do
-      it 'user is not logged in' do
-        expect{ get :show, params: { id: subject } }.to raise_error RuntimeError
-      end
     end
   end
 
@@ -60,160 +37,125 @@ RSpec.describe QuestionsController, type: :controller do
     end
   end
 
-  describe '#Create' do 
-    context 'before creating' do
+  describe '#Create' do
+    subject do
+      create(:question, user: user, title: content[:title], body: content[:body])
+    end
+
+    context 'when not logged in' do
+      it 'raise error if user is not logged in' do
+        expect({ post :create, params: { user_id: user, question: content } }).to raise_error RuntimeError
+      end
+    end
+    
+    context 'when logged in' do
       before(:each) do
         login
       end
-      it 'check if correct number of arguments passed' do
-        expect{ subject }.to_not raise_error ArgumentError
-      end
-    end
 
-    context 'after successfully creating a question' do
-      before(:each) do
-        login
-      end
-      it 'check if count increments by 1' do
-        expect{ subject }.to change(Question, :count).by(1)
-      end
+      context 'when invalid parameters' do
+        it 'does not increment the questions count if any parameter is missing/empty' do
+          expect{ content.except(:title, :body) }.to_not change(Question, :count)
+          expect()
+          expect{ content.except(:body) }.to_not change(Question, :count)
+          expect{ content.except(:title) }.to_not change(Question, :count)
+        end
 
-      it 'it should redirect to user\'s show page' do
-        redirect_to user
-        expect(response).to have_http_status(:ok)
-      end
-    end
+        it 'displays \'new\' template when title exceeds maximum length' do
+          content[:title] = 'a'*101
+          post :create, params: { user_id: user, question: content }
+          expect(response).to render_template :new
+        end
 
-    context 'raise error if' do
-      it 'user is not logged in' do
-        expect{ post :create, params: { user_id: user, question: subject } }.to raise_error RuntimeError
-      end
-    end
-
-    context 'renders \'new\' template for ' do
-      before(:each) do
-        login
-      end
-      it 'invalid title' do
-        post :create, params: { user_id: user, question: invalid_title }
-        expect(response).to render_template :new
+        it 'displays \'new\' template when content exceeds maximum length' do
+          content[:body] = 'b'*501
+          post :create, params: { user_id: user, question: content }
+          expect(response).to render_template :new
+        end
       end
 
-      it 'invalid content' do
-        post :create, params: { user_id: user, question: invalid_content }
-        expect(response).to render_template :new
-      end
-    end
+      context 'when valid parameters' do
+        it 'increments questions count by 1' do
+          expect{ subject }.to change(Question, :count).by(1)
+        end
 
-    context 'does not increment questions count on passing' do
-      before(:each) do
-        login
-      end
-      it 'no arguments' do
-        expect{ content.except(:title, :body) }.to_not change(Question, :count)
-      end
-
-      it 'empty content' do
-        expect{ content.except(:body) }.to_not change(Question, :count)
-      end
-
-      it 'empty title' do
-        expect{ content.except(:title) }.to_not change(Question, :count)
+        # it 'redirects to user\'s show page' do
+        #   redirect_to user
+        #   expect(response).to have_http_status(:ok)
+        # end
       end
     end
   end
 
   describe '#Edit' do
-    it 'successfully redirects to edit page' do
-      login
-      get :edit, params: {user_id: user, id: subject }
-      expect(response).to have_http_status(:success)
+    it 'shows RuntimeError if user is not logged in' do
+      expect{ get :edit, params: { user_id: user, id: subject } }.to raise_error RuntimeError
     end
 
-    context 'Raise error if' do
-      it 'user is not logged in' do
-        expect{ get :edit, params: {user_id: user, id: subject } }.to raise_error RuntimeError
-      end
-    end    
+    it 'displays edit page when user is logged in' do
+      login
+      get :edit, params: { user_id: user, id: subject }
+      expect(response).to have_http_status(:success)
+    end  
   end
 
   describe '#Update' do
-    context 'After update action' do
+    it 'raise Runtime error if user is not logged in' do
+      expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error RuntimeError
+    end
+
+    context 'on passing invalid paramters' do
+      before(:each) do
+        login
+      end
+
+      it 'raise RecordInvalid error if title/content is either empty or exceed maximum size' do
+        expect{ put :update, params: { user_id: user, id: subject, question: content.merge(title: '') } }.to raise_error ActiveRecord::RecordInvalid
+
+        expect{ put :update, params: { user_id: user, id: subject, question: content.merge(body: '')} }.to raise_error ActiveRecord::RecordInvalid
+
+        content[:title] = 'a'*101
+        expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
+
+        content[:body] = 'a'*501
+        expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
+      end
+    end
+
+    context 'on passing valid parameters' do
       before(:each) do
         login
         put :update, params: { user_id: user, id: subject, question: content }
         subject.reload
       end
 
-      it 'check if arguments updated successfully' do
+      it 'should update the arguments' do
         expect(subject.title).to eql content[:title]
         expect(subject.body).to eql content[:body]
       end
 
-      it 'successfully redirects to user\'s page' do
+      it 'should display the user\'s page after successfully updating' do
         expect(response).to redirect_to user
-      end
-    end
-
-    context 'raise error if' do
-      it 'user is not logged in' do
-        expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error RuntimeError
-      end
-
-      context 'Title' do
-        before(:each) do
-          login
-        end
-        it 'is empty' do
-          # empty_title = content
-          # empty_title[:title] = ' '
-          content[:title] = ''
-          expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
-        end
-
-        it 'has more than 100 characters' do
-          expect{ put :update, params: { user_id: user, id: subject, question: invalid_title } }.to raise_error RuntimeError
-        end
-      end
-
-      context 'Content' do
-        before(:each) do
-          login
-        end
-        it 'is empty' do
-          # empty_body = content
-          # empty_body[:body] = ' '
-          content[:body] = ''
-          expect{ put :update, params: { user_id: user, id: subject, question: content } }.to raise_error ActiveRecord::RecordInvalid
-        end
-
-        it 'has more than 500 characters' do
-          expect{ put :update, params: { user_id: user, id: subject, question: invalid_content } }.to raise_error RuntimeError
-        end
       end
     end
   end
 
   describe '#Destroy' do
-    context 'after deleting an answer' do
-      it 'check if count decreases by 1' do
-        temp = subject
-        new_user = user
-        login
-        expect{ delete :destroy, params: { :user_id => new_user, 
-                                         :id => temp} }.to change(Question, :count).by(-1)
-      end
-
-      it 'it should redirect to user\'s show page' do
-        redirect_to user
-        expect(response).to have_http_status(:ok)
-      end
+    it 'raise RuntimeError if user is not logged in' do
+      expect{ delete :destroy, params: { user_id: user, id: subject }}.to raise_error RuntimeError
     end
 
-    context 'do not delete' do
-      it 'when user is not logged in' do
-        expect{ delete :destroy, params: { :user_id => user, :id => subject} }.to raise_error RuntimeError
-      end
+    it 'decrease questions count by 1 after deleting the question' do
+      temp = subject
+      new_user = user
+      login
+      expect{ delete :destroy, params: { user_id: new_user, id: temp }}.to change(Question, :count).by(-1)
+    end
+
+    it 'should redirect to user\'s page after deleting' do
+      login
+      redirect_to user
+      expect(response).to have_http_status(:ok)
     end
   end
 end

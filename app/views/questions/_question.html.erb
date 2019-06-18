@@ -6,8 +6,8 @@
 <p>
 	<strong>Body:</strong>
 	<%= question.body %> 
-	<%= link_to 'Edit Question', edit_user_question_path(@user,question) %>
-	<%= link_to 'Delete', [question.user,question], 
+	<%= link_to 'Edit Question', edit_question_path(question) %>
+	<%= link_to 'Delete', [question], 
 						   method: :delete, 
 						   data: {confirm: "Are You Sure?"} %>
 

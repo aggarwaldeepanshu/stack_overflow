@@ -4,8 +4,8 @@
 	<%= link_to 'Downvote', ans_downvote_path(answer,answer.answer_vote) %>
 
 	<%= answer.body %> 
-	<%= link_to 'Edit Answer', edit_question_answer_path(@question, answer) %>
-	<%= link_to 'Delete', [answer.question,answer], 
+	<%= link_to 'Edit Answer', edit_answer_path(answer) %>
+	<%= link_to 'Delete', [answer], 
 						   method: :delete, 
 						   data: {confirm: "Are You Sure?"} %>
 </p>

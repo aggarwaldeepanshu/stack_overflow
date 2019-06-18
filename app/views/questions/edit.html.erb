@@ -2,7 +2,7 @@
 <h1>Edit Your Question</h1>
 
 
-<%= form_with model: [@user, @question], local: true do |form| %>
+<%= form_with model: [@question], local: true do |form| %>
 	<p>
 		<%= form.label :title %><br>
 		<%= form.text_field :title %>

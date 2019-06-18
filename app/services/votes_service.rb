@@ -1,24 +1,34 @@
 module VotesService
-	class << self
-		def ques_upvote(question)
-			vote = question.question_vote
+	class VoteManager
+
+		def intialize(entity: )
+			self.entity = entity
+		end
+
+		private
+
+		attr_accessor :entity
+
+
+		def upvote
+			vote = entiry.up_vote
   		vote.count += 1
   		vote.save!
 		end
 
-		def ques_downvote(question)
+		def self.ques_downvote(question)
 			vote = question.question_vote
   		vote.count -= 1
   		vote.save!
 		end
 
-		def ans_upvote(answer)
+		def self.ans_upvote(answer)
 			vote = answer.answer_vote
   		vote.count += 1
   		vote.save!
 		end
 
-		def ans_downvote(answer)
+		def self.ans_downvote(answer)
 			vote = answer.answer_vote
   		vote.count -= 1
   		vote.save!

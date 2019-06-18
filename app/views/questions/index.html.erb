@@ -1,6 +1,8 @@
 <% provide("title", "Questions List") %>
 <h1>List of all Questions</h1>
 
+<%= link_to 'Back to users page', user_path(@user) %>
+
 <% @questions.each do |question| %>
 
 	<h2>Question by user <%= question.user_id %></h2>
